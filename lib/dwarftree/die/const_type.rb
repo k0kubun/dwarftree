@@ -1,1 +1,3 @@
-Dwarftree::DIE::ConstType = Dwarftree::DIE.new
+Dwarftree::DIE::ConstType = Dwarftree::DIE.new(
+  :type,
+)

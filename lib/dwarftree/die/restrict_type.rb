@@ -1,1 +1,3 @@
-Dwarftree::DIE::RestrictType = Dwarftree::DIE.new
+Dwarftree::DIE::RestrictType = Dwarftree::DIE.new(
+  :type,
+)

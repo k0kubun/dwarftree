@@ -1,1 +1,4 @@
-Dwarftree::DIE::Enumerator = Dwarftree::DIE.new
+Dwarftree::DIE::Enumerator = Dwarftree::DIE.new(
+  :name,
+  :const_value,
+)

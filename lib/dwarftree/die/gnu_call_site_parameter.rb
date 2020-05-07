@@ -1,1 +1,3 @@
-Dwarftree::DIE::GnuCallSiteParameter = Dwarftree::DIE.new
+Dwarftree::DIE::GNUCallSiteParameter = Dwarftree::DIE.new(
+  :location,
+)

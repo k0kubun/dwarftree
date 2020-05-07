@@ -1,1 +1,16 @@
-Dwarftree::DIE::Subprogram = Dwarftree::DIE.new
+Dwarftree::DIE::Subprogram = Dwarftree::DIE.new(
+  :external,
+  :name,
+  :decl_file,
+  :decl_line,
+  :prototyped,
+  :type,
+  :low_pc,
+  :high_pc,
+  :frame_base,
+  :declaration,
+  :inline,
+  :sibling,
+  :artificial,
+  :noreturn,
+)

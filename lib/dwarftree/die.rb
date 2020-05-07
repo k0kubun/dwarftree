@@ -1,7 +1,19 @@
 # Debugging Information Entry
 module Dwarftree::DIE
   def self.new(*args, &block)
-    Struct.new(:level, :children, *args, keyword_init: true, &block)
+    Struct.new(:children, *args, keyword_init: true) do
+      # Not in members to be ignored in inspect, etc.
+      attr_accessor :level
+
+      def initialize(**)
+        super
+        self.children ||= []
+      end
+
+      if block
+        instance_exec(&block)
+      end
+    end
   end
 
   require 'dwarftree/die/array_type'

@@ -1,1 +1,4 @@
-Dwarftree::DIE::SubrangeType = Dwarftree::DIE.new
+Dwarftree::DIE::SubrangeType = Dwarftree::DIE.new(
+  :type,
+  :upper_bound,
+)

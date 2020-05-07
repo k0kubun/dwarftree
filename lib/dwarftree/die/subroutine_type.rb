@@ -1,1 +1,5 @@
-Dwarftree::DIE::SubroutineType = Dwarftree::DIE.new
+Dwarftree::DIE::SubroutineType = Dwarftree::DIE.new(
+  :prototyped,
+  :type,
+  :sibling,
+)

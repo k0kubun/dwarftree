@@ -1,1 +1,3 @@
-Dwarftree::DIE::DwarfProcedure = Dwarftree::DIE.new
+Dwarftree::DIE::DwarfProcedure = Dwarftree::DIE.new(
+  :location,
+)
