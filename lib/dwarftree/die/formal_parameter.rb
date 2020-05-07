@@ -4,4 +4,6 @@ Dwarftree::DIE::FormalParameter = Dwarftree::DIE.new(
   :decl_line,
   :type,
   :location,
+  :abstract_origin,
+  :const_value,
 )

@@ -3,4 +3,5 @@ Dwarftree::DIE::LexicalBlock = Dwarftree::DIE.new(
   :high_pc,
   :ranges,
   :sibling,
+  :abstract_origin,
 )

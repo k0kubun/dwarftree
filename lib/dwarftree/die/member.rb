@@ -6,4 +6,5 @@ Dwarftree::DIE::Member = Dwarftree::DIE.new(
   :byte_size,
   :bit_size,
   :bit_offset,
+  :data_member_location,
 )

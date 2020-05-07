@@ -13,4 +13,8 @@ Dwarftree::DIE::Subprogram = Dwarftree::DIE.new(
   :sibling,
   :artificial,
   :noreturn,
+  :GNU_all_call_sites,
+  :linkage_name,
+  :abstract_origin,
+  :GNU_all_tail_call_sites,
 )

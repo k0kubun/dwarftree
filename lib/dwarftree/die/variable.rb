@@ -8,4 +8,6 @@ Dwarftree::DIE::Variable = Dwarftree::DIE.new(
   :location,
   :const_value,
   :artificial,
+  :abstract_origin,
+  :specification,
 )

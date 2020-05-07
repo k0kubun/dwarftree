@@ -3,4 +3,5 @@ Dwarftree::DIE::Label = Dwarftree::DIE.new(
   :decl_file,
   :decl_line,
   :low_pc,
+  :abstract_origin,
 )

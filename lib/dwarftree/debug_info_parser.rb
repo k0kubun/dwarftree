@@ -74,7 +74,7 @@ class Dwarftree::DebugInfoParser
     return nil if type.nil?
 
     attributes = {}
-    while scanner.scan(/    <\h+>   DW_AT_(?<key>[^ ]+) +:( \([^\)]+\):)? (?<value>[^\n]+)\n/)
+    while scanner.scan(/    <\h+>   DW_AT_(?<key>[^ ]+) *:( \([^\)]+\):)? (?<value>[^\n]+)\n/)
       key, value = scanner[:key], scanner[:value]
       attributes[key.to_sym] = value
     end
@@ -93,10 +93,22 @@ class Dwarftree::DebugInfoParser
     rescue ArgumentError
       $stderr.puts "Caught ArgumentError on Dwarftree::DIE::#{const}.new"
       raise
-    end
+    end.tap { |die| die.level = level }
   end
 
+  # @param [Array<Dwarftree::DIE::*>] nodes
   def build_tree(nodes)
-    # TODO: implement
+    stack = [nodes.first]
+    nodes.drop(1).each do |node|
+      while stack.last.level + 1 > node.level
+        stack.pop
+      end
+      if stack.last.level + 1 != node.level
+        raise ParserError.new("unexpected node level #{node.level} against stack #{stack.last.level}")
+      end
+      stack.last.children << node
+      stack.push(node)
+    end
+    stack.first
   end
 end
