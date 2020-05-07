@@ -1,3 +1,5 @@
+require 'dwarftree/die'
+
 class Dwarftree::DebugInfoParser
   ParserError = Class.new(StandardError)
 
