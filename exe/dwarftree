@@ -1,3 +1,10 @@
 #!/usr/bin/env ruby
 
 require "dwarftree"
+
+object, symbol, *rest = ARGV
+if object.nil? || !rest.empty?
+  abort "Usage: #{$0} OBJECT [SYMBOL]"
+end
+
+Dwarftree.run(object, symbol: symbol)

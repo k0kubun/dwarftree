@@ -1,6 +1,6 @@
-require "dwarftree/version"
+require 'dwarftree/version'
 
 module Dwarftree
-  class Error < StandardError; end
-  # Your code goes here...
+  def self.run(object, symbol:)
+  end
 end
