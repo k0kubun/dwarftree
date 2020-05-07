@@ -5,15 +5,6 @@ class Dwarftree::DebugInfoParser
   CommandError = Class.new(StandardError)
   ParserError = Class.new(StandardError)
 
-  def self.parse(object)
-    cmd = ['objdump', '--dwarf=info', object]
-    debug_info = IO.popen(cmd, &:read)
-    unless $?.success?
-      raise CommandError.new("Failed to run: #{cmd.join(' ')}")
-    end
-    new.parse(debug_info)
-  end
-
   using Module.new {
     refine StringScanner do
       def scan!(pattern)
@@ -26,8 +17,13 @@ class Dwarftree::DebugInfoParser
     end
   }
 
-  def initialize
-    @stack = []
+  def self.parse(object)
+    cmd = ['objdump', '--dwarf=info', object]
+    debug_info = IO.popen(cmd, &:read)
+    unless $?.success?
+      raise CommandError.new("Failed to run: #{cmd.join(' ')}")
+    end
+    new.parse(debug_info)
   end
 
   # @param [String] debug_info
@@ -91,12 +87,16 @@ class Dwarftree::DebugInfoParser
   # @param [Hash{ Symbol => String }] attributes
   def build_die(type, level:, attributes:)
     const = type.split('_').map { |s| s.sub(/\A\w/, &:upcase) }.join
-    Dwarftree::DIE.const_get(const, false).new(**attributes)
-  rescue => e
-    puts type
-    raise
+    klass = Dwarftree::DIE.const_get(const, false)
+    begin
+      klass.new(**attributes)
+    rescue ArgumentError
+      $stderr.puts "Caught ArgumentError on Dwarftree::DIE::#{const}.new"
+      raise
+    end
   end
 
   def build_tree(nodes)
+    # TODO: implement
   end
 end
