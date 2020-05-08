@@ -1,10 +1,23 @@
 #!/usr/bin/env ruby
 
-require "dwarftree"
+require 'dwarftree'
+require 'optparse'
 
-object, symbol, *rest = ARGV
-if object.nil? || !rest.empty?
-  abort "Usage: #{$0} OBJECT [SYMBOL]"
+dies = nil
+symbols = nil
+
+objects = OptionParser.new do |o|
+  o.banner = "Usage: #{$0} OBJECT"
+  o.on('-d', '--die TAG', String, 'Show only specified DIEs, comma-separated') do |d|
+    dies ||= []
+    dies += d.split(',')
+  end
+  o.on('-s', '--subroutine SYMBOL', String, 'Show only specified subroutines, comma-separated') do |s|
+    symbols ||= []
+    symbols += s.split(',')
+  end
+end.parse!(ARGV)
+
+objects.each do |object|
+  Dwarftree.run(object, dies: dies, symbols: symbols)
 end
-
-Dwarftree.run(object, symbol: symbol)

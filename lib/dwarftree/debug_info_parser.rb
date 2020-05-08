@@ -1,7 +1,7 @@
 require 'dwarftree/die'
 require 'strscan'
 
-class Dwarftree::DebugInfoParser
+class << Dwarftree::DebugInfoParser = Object.new
   CommandError = Class.new(StandardError)
   ParserError = Class.new(StandardError)
 
@@ -17,25 +17,25 @@ class Dwarftree::DebugInfoParser
     end
   }
 
-  def self.parse(object)
+  def parse(object)
     cmd = ['objdump', '--dwarf=info', object]
     debug_info = IO.popen(cmd, &:read)
     unless $?.success?
       raise CommandError.new("Failed to run: #{cmd.join(' ')}")
     end
-    new.parse(debug_info)
+    parse_debug_info(debug_info)
   end
 
+  private
+
   # @param [String] debug_info
-  def parse(debug_info)
+  def parse_debug_info(debug_info)
     compile_units = []
     each_compilation_unit(debug_info) do |compilation_unit|
       compile_units << parse_compilation_unit(compilation_unit)
     end
     compile_units
   end
-
-  private
 
   # @param [String] debug_info
   def each_compilation_unit(debug_info)
