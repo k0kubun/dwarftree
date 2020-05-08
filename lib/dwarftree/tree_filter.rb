@@ -1,8 +1,8 @@
 class << Dwarftree::TreeFilter = Object.new
   # @param [String] object
   # @param [Array<String>] dies
-  # @param [Array<String>] symbols
-  def filter!(units, dies:, symbols:)
+  # @param [Array<String>] subroutines
+  def filter!(units, dies:, subroutines:)
     units # TODO: implement
   end
 end

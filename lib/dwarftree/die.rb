@@ -1,18 +1,49 @@
 # Debugging Information Entry
 module Dwarftree::DIE
-  def self.new(*args, &block)
-    Struct.new(:children, *args, keyword_init: true) do
-      # Not in members to be ignored in inspect, etc.
-      attr_accessor :level
+  using Module.new {
+    refine Struct.singleton_class do
+      def new(*args, **_opts, &block)
+        if args.empty?
+          # Pseudo Struct for no-member DIE
+          Class.new do
+            def self.members
+              []
+            end
 
-      def initialize(**)
+            if block
+              class_exec(&block)
+            end
+          end
+        else
+          super
+        end
+      end
+    end
+  }
+
+  def self.new(*args, &block)
+    Struct.new(*args, keyword_init: true) do
+      class << self
+        attr_accessor :attributes
+      end
+      self.attributes = members
+
+      # Not in members to avoid a conflict with DIE attributes
+      attr_accessor :type, :level, :children
+
+      def initialize(**, &block)
         super
-        self.children ||= []
+        self.children = []
+        if block
+          block.call(self)
+        end
+        freeze
       end
 
       if block
-        instance_exec(&block)
+        class_exec(&block)
       end
+      freeze
     end
   end
 

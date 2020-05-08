@@ -4,20 +4,20 @@ require 'dwarftree'
 require 'optparse'
 
 dies = nil
-symbols = nil
+subroutines = nil
 
 objects = OptionParser.new do |o|
   o.banner = "Usage: #{$0} OBJECT"
-  o.on('-d', '--die TAG', String, 'Show only specified DIEs, comma-separated') do |d|
+  o.on('-d', '--die TAG1,TAG2,...', String, 'Show only specified DIEs') do |d|
     dies ||= []
     dies += d.split(',')
   end
-  o.on('-s', '--subroutine SYMBOL', String, 'Show only specified subroutines, comma-separated') do |s|
-    symbols ||= []
-    symbols += s.split(',')
+  o.on('-s', '--subroutine NAME1,NAME2,...', String, 'Show only specified subroutines') do |s|
+    subroutines ||= []
+    subroutines += s.split(',')
   end
 end.parse!(ARGV)
 
 objects.each do |object|
-  Dwarftree.run(object, dies: dies, symbols: symbols)
+  Dwarftree.run(object, dies: dies, subroutines: subroutines)
 end

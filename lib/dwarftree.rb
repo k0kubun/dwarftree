@@ -5,18 +5,18 @@ module Dwarftree
 
   # @param [String] object
   # @param [Array<String>] dies
-  # @param [Array<String>] symbols
-  def self.run(object, dies:, symbols:)
+  # @param [Array<String>] subroutines
+  def self.run(object, dies:, subroutines:)
     begin
       nodes = DebugInfoParser.parse(object)
     rescue DebugInfoParser::CommandError => e
       abort "ERROR: #{e.message}"
     end
     if nodes.empty?
-      abort "debug_info was not found in #{object.dump}. Compile it with debug flags enabled."
+      abort "Debug info was not found in #{object.dump}"
     end
 
-    Dwarftree::TreeFilter.filter!(nodes, dies: dies, symbols: symbols)
+    Dwarftree::TreeFilter.filter!(nodes, dies: dies, subroutines: subroutines)
     nodes.each do |node|
       Dwarftree::TreeVisualizer.visualize(node)
     end

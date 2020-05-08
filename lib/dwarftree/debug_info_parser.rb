@@ -1,7 +1,7 @@
 require 'dwarftree/die'
 require 'strscan'
 
-class << Dwarftree::DebugInfoParser = Object.new
+class Dwarftree::DebugInfoParser
   CommandError = Class.new(StandardError)
   ParserError = Class.new(StandardError)
 
@@ -17,25 +17,25 @@ class << Dwarftree::DebugInfoParser = Object.new
     end
   }
 
-  def parse(object)
+  def self.parse(object)
     cmd = ['objdump', '--dwarf=info', object]
     debug_info = IO.popen(cmd, &:read)
     unless $?.success?
       raise CommandError.new("Failed to run: #{cmd.join(' ')}")
     end
-    parse_debug_info(debug_info)
+    new.parse(debug_info)
   end
 
-  private
-
   # @param [String] debug_info
-  def parse_debug_info(debug_info)
+  def parse(debug_info)
     compile_units = []
     each_compilation_unit(debug_info) do |compilation_unit|
       compile_units << parse_compilation_unit(compilation_unit)
     end
     compile_units
   end
+
+  private
 
   # @param [String] debug_info
   def each_compilation_unit(debug_info)
@@ -89,11 +89,14 @@ class << Dwarftree::DebugInfoParser = Object.new
     const = type.split('_').map { |s| s.sub(/\A\w/, &:upcase) }.join
     klass = Dwarftree::DIE.const_get(const, false)
     begin
-      klass.new(**attributes)
+      klass.new(**attributes) do |die|
+        die.type  = type
+        die.level = level
+      end
     rescue ArgumentError
       $stderr.puts "Caught ArgumentError on Dwarftree::DIE::#{const}.new"
       raise
-    end.tap { |die| die.level = level }
+    end
   end
 
   # @param [Array<Dwarftree::DIE::*>] nodes
