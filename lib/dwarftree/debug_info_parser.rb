@@ -26,7 +26,12 @@ class Dwarftree::DebugInfoParser
     new.parse(debug_info)
   end
 
+  def initialize
+    @die_index = {} # { 12345 => #<Dwarftree::DIE:* ...> }
+  end
+
   # @param [String] debug_info
+  # @return [Array<Dwarftree::DIE::CompileUnit>]
   def parse(debug_info)
     compile_units = []
     each_compilation_unit(debug_info) do |compilation_unit|
@@ -69,8 +74,8 @@ class Dwarftree::DebugInfoParser
   def parse_die(die)
     scanner = StringScanner.new(die)
 
-    scanner.scan!(/ <(?<level>\d+)><\h+>: Abbrev Number: (\d+ \(DW_TAG_(?<type>[^\)]+)\)|0)\n/)
-    level, type = scanner[:level], scanner[:type]
+    scanner.scan!(/ <(?<level>\d+)><(?<index>\h+)>: Abbrev Number: (\d+ \(DW_TAG_(?<type>[^\)]+)\)|0)\n/)
+    level, index, type = scanner[:level], scanner[:index], scanner[:type]
     return nil if type.nil?
 
     attributes = {}
@@ -79,19 +84,24 @@ class Dwarftree::DebugInfoParser
       attributes[key.to_sym] = value
     end
 
-    build_die(type, level: Integer(level), attributes: attributes)
+    build_die(type, level: Integer(level), index: index.to_i(16), attributes: attributes)
   end
 
   # @param [String] type
   # @param [Integer] level
+  # @param [Integer] index
   # @param [Hash{ Symbol => String }] attributes
-  def build_die(type, level:, attributes:)
+  # @return [Dwarftree::DIE::*]
+  def build_die(type, level:, index:, attributes:)
     const = type.split('_').map { |s| s.sub(/\A\w/, &:upcase) }.join
     klass = Dwarftree::DIE.const_get(const, false)
     begin
-      klass.new(**attributes) do |die|
+      @die_index[index] = klass.new(**attributes) do |die|
         die.type  = type
         die.level = level
+        if die.respond_to?(:die_index=)
+          die.die_index = @die_index
+        end
       end
     rescue ArgumentError
       $stderr.puts "Caught ArgumentError on Dwarftree::DIE::#{const}.new"

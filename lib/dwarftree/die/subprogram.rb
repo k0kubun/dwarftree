@@ -18,5 +18,5 @@ Dwarftree::DIE::Subprogram = Dwarftree::DIE.new(
   :abstract_origin,
   :GNU_all_tail_call_sites,
 ) do
-  self.attributes = [:name]
+  self.attributes = [:name, :inline]
 end
