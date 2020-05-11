@@ -4,4 +4,8 @@ Dwarftree::DIE::LexicalBlock = Dwarftree::DIE.new(
   :ranges,
   :sibling,
   :abstract_origin,
-)
+) do
+  def abstract_origin
+    self[:abstract_origin]&.type
+  end
+end

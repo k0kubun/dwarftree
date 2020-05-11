@@ -6,4 +6,8 @@ Dwarftree::DIE::FormalParameter = Dwarftree::DIE.new(
   :location,
   :abstract_origin,
   :const_value,
-)
+) do
+  def abstract_origin
+    self[:abstract_origin]&.name
+  end
+end

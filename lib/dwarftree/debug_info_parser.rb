@@ -1,3 +1,4 @@
+require 'dwarftree/debug_ranges_parser'
 require 'dwarftree/die'
 require 'strscan'
 
@@ -18,16 +19,23 @@ class Dwarftree::DebugInfoParser
   }
 
   def self.parse(object)
+    begin
+      offset_ranges = Dwarftree::DebugRangesParser.parse(object)
+    rescue Dwarftree::DebugRangesParser::CommandError => e
+      raise CommandError.new(e.message)
+    end
+
     cmd = ['objdump', '--dwarf=info', object]
     debug_info = IO.popen(cmd, &:read)
     unless $?.success?
       raise CommandError.new("Failed to run: #{cmd.join(' ')}")
     end
-    new.parse(debug_info)
+    new(offset_ranges).parse(debug_info)
   end
 
-  def initialize
-    @die_index = {} # { 12345 => #<Dwarftree::DIE:* ...> }
+  def initialize(offset_ranges)
+    @offset_die = {} # { 12345 => #<Dwarftree::DIE:* ...> }
+    @offset_ranges = offset_ranges # { 12345 => [(12345..67890), ...] }
   end
 
   # @param [String] debug_info
@@ -62,6 +70,10 @@ class Dwarftree::DebugInfoParser
         dies << parsed
       end
     end
+    dies.each do |die|
+      resolve_references(die)
+      die.freeze
+    end
     build_tree(dies)
   end
 
@@ -74,8 +86,8 @@ class Dwarftree::DebugInfoParser
   def parse_die(die)
     scanner = StringScanner.new(die)
 
-    scanner.scan!(/ <(?<level>\d+)><(?<index>\h+)>: Abbrev Number: (\d+ \(DW_TAG_(?<type>[^\)]+)\)|0)\n/)
-    level, index, type = scanner[:level], scanner[:index], scanner[:type]
+    scanner.scan!(/ <(?<level>\d+)><(?<offset>\h+)>: Abbrev Number: (\d+ \(DW_TAG_(?<type>[^\)]+)\)|0)\n/)
+    level, offset, type = scanner[:level], scanner[:offset], scanner[:type]
     return nil if type.nil?
 
     attributes = {}
@@ -84,28 +96,35 @@ class Dwarftree::DebugInfoParser
       attributes[key.to_sym] = value
     end
 
-    build_die(type, level: Integer(level), index: index.to_i(16), attributes: attributes)
+    build_die(type, level: Integer(level), offset: offset.to_i(16), attributes: attributes)
   end
 
   # @param [String] type
   # @param [Integer] level
-  # @param [Integer] index
+  # @param [Integer] offset
   # @param [Hash{ Symbol => String }] attributes
   # @return [Dwarftree::DIE::*]
-  def build_die(type, level:, index:, attributes:)
+  def build_die(type, level:, offset:, attributes:)
     const = type.split('_').map { |s| s.sub(/\A\w/, &:upcase) }.join
     klass = Dwarftree::DIE.const_get(const, false)
     begin
-      @die_index[index] = klass.new(**attributes) do |die|
-        die.type  = type
-        die.level = level
-        if die.respond_to?(:die_index=)
-          die.die_index = @die_index
-        end
-      end
+      die = klass.new(**attributes)
     rescue ArgumentError
       $stderr.puts "Caught ArgumentError on Dwarftree::DIE::#{const}.new"
       raise
+    end
+    die.type  = type
+    die.level = level
+    @offset_die[offset] = die
+  end
+
+  def resolve_references(die)
+    if die.respond_to?(:ranges) && die[:ranges]
+      die.ranges = @offset_ranges.fetch(die[:ranges].to_i(16))
+    end
+    if die.respond_to?(:abstract_origin) && die[:abstract_origin]
+      offset = die[:abstract_origin].match(/\A<0x(?<offset>\h+)>\z/)[:offset]
+      die.abstract_origin = @offset_die.fetch(offset.to_i(16))
     end
   end
 

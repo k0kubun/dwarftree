@@ -31,13 +31,9 @@ module Dwarftree::DIE
       # Not in members to avoid a conflict with DIE attributes
       attr_accessor :type, :level, :children
 
-      def initialize(**, &block)
+      def initialize(**)
         super
         self.children = []
-        if block
-          block.call(self)
-        end
-        freeze
       end
 
       if block

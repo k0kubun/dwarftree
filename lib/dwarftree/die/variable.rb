@@ -10,4 +10,8 @@ Dwarftree::DIE::Variable = Dwarftree::DIE.new(
   :artificial,
   :abstract_origin,
   :specification,
-)
+) do
+  def abstract_origin
+    self[:abstract_origin]&.name
+  end
+end
