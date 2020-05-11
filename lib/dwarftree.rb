@@ -6,7 +6,8 @@ module Dwarftree
   # @param [String] object
   # @param [Array<String>] dies
   # @param [Array<String>] subprograms
-  def self.run(object, dies:, subprograms:)
+  # @param [TrueClass,FalseClass] code_size
+  def self.run(object, dies:, subprograms:, code_size:)
     begin
       nodes = DebugInfoParser.parse(object)
     rescue DebugInfoParser::CommandError => e
@@ -18,7 +19,7 @@ module Dwarftree
 
     Dwarftree::TreeFilter.new(dies: dies, subprograms: subprograms).filter!(nodes)
     nodes.each do |node|
-      Dwarftree::TreeVisualizer.visualize(node)
+      Dwarftree::TreeVisualizer.new(code_size: code_size).visualize(node)
     end
   end
 end

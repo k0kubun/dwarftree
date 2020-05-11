@@ -8,7 +8,7 @@ Dwarftree::DIE::InlinedSubroutine = Dwarftree::DIE.new(
   :low_pc,
   :high_pc,
 ) do
-  self.attributes = members - [:sibling]
+  self.attributes = [:abstract_origin]
 
   def abstract_origin
     self[:abstract_origin].name

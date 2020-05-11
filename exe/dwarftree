@@ -6,17 +6,21 @@ require 'set'
 
 subprograms = Set.new
 dies = Set.new
+code_size = false
 
 objects = OptionParser.new do |o|
   o.banner = "Usage: #{$0} OBJECT"
-  o.on('-s', '--subprogram NAME1,NAME2,...', String, 'Show only specified subprograms') do |ss|
+  o.on('-s', '--subprogram NAME1,NAME2,...', String, 'Show only specified subprograms and their children') do |ss|
     ss.split(',').each { |s| subprograms.add(s) }
   end
-  o.on('-d', '--die TAG1,TAG2,...', String, 'Show only specified DIEs') do |ds|
+  o.on('--die TAG1,TAG2,...', String, 'Show only specified DIEs') do |ds|
     ds.split(',').each { |d| dies.add(d) }
+  end
+  o.on('--code-size', 'Show code size for DIEs which have the information') do
+    code_size = true
   end
 end.parse!(ARGV)
 
 objects.each do |object|
-  Dwarftree.run(object, dies: dies, subprograms: subprograms)
+  Dwarftree.run(object, dies: dies, subprograms: subprograms, code_size: code_size)
 end

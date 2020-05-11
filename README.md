@@ -1,6 +1,6 @@
 # Dwarftree
 
-A wrapper of `objdump --dwarf=info` to visualize a structure of inlined subroutines
+A wrapper of `objdump --dwarf=info` to visualize an object's structure and show code size
 
 ## Installation
 
