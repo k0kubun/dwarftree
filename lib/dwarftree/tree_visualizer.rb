@@ -2,23 +2,32 @@ class Dwarftree::TreeVisualizer
   KiB = 1024
   MiB = KiB * 1024
 
-  # @param [TrueClass,FalseClass] code_size
-  def initialize(code_size)
-    @code_size = code_size
+  # @param [TrueClass,FalseClass] show_size
+  # @param [TrueClass,FalseClass] sort_size
+  def initialize(show_size:, sort_size:)
+    @show_size = show_size
+    @sort_size = sort_size
   end
 
-  # @param [Dwarftree::DIE::*] node
-  def visualize(node, depth: 0)
-    size = node_code_size(node)
-    attrs = node_attributes(node)
-    puts "#{'  ' * depth}#{node.type}#{(" size=#{human_size(size)}" if size)} #{attrs}"
-
-    node.children.each do |child|
-      visualize(child, depth: depth + 1)
+  # @param [Array<Dwarftree::DIE::*>] nodes
+  def visualize(nodes)
+    sort(nodes).each do |node|
+      visualize_node(node)
     end
   end
 
   private
+
+  # @param [Dwarftree::DIE::*] node
+  def visualize_node(node, depth: 0)
+    size = node_code_size(node)
+    print "#{'  ' * depth}#{node.type}"
+    puts "#{(" size=#{human_size(size)}" if @show_size && size)} #{node_attributes(node)}"
+
+    sort(node.children).each do |child|
+      visualize_node(child, depth: depth + 1)
+    end
+  end
 
   def node_attributes(node)
     attrs = node.class.attributes.map do |attr|
@@ -47,6 +56,14 @@ class Dwarftree::TreeVisualizer
       "%.1fK" % (size.to_f / KiB)
     else
       size
+    end
+  end
+
+  def sort(nodes)
+    if @sort_size
+      nodes.sort_by { |node| -(node_code_size(node) || 0) }
+    else
+      nodes
     end
   end
 end

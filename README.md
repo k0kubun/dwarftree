@@ -4,6 +4,8 @@ A wrapper of `objdump --dwarf=info` to visualize an object's structure and show 
 
 ## Installation
 
+Prepare Ruby 2.6+, and
+
 ```bash
 $ gem install dwarftree
 ```
