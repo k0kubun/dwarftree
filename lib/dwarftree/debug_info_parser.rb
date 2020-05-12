@@ -18,7 +18,7 @@ class Dwarftree::DebugInfoParser
     end
   }
 
-  def self.parse(object)
+  def self.parse(object, flat:)
     begin
       offset_ranges = Dwarftree::DebugRangesParser.parse(object)
     rescue Dwarftree::DebugRangesParser::CommandError => e
@@ -30,22 +30,28 @@ class Dwarftree::DebugInfoParser
     unless $?.success?
       raise CommandError.new("Failed to run: #{cmd.join(' ')}")
     end
-    new(offset_ranges).parse(debug_info)
+    new(offset_ranges, flat: flat).parse(debug_info)
   end
 
-  def initialize(offset_ranges)
+  def initialize(offset_ranges, flat:)
     @offset_die = {} # { 12345 => #<Dwarftree::DIE:* ...> }
     @offset_ranges = offset_ranges # { 12345 => [(12345..67890), ...] }
+    @flat = flat
   end
 
   # @param [String] debug_info
   # @return [Array<Dwarftree::DIE::CompileUnit>]
   def parse(debug_info)
-    compile_units = []
+    nodes = []
     each_compilation_unit(debug_info) do |compilation_unit|
-      compile_units << parse_compilation_unit(compilation_unit)
+      dies = parse_compilation_unit(compilation_unit)
+      if @flat
+        nodes += dies
+      else
+        nodes << build_tree(dies)
+      end
     end
-    compile_units
+    nodes
   end
 
   private
@@ -74,7 +80,6 @@ class Dwarftree::DebugInfoParser
       resolve_references(die)
       die.freeze
     end
-    build_tree(dies)
   end
 
   # @param [String] dies

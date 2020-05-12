@@ -8,9 +8,10 @@ module Dwarftree
   # @param [Array<String>] subprograms
   # @param [TrueClass,FalseClass] show_size
   # @param [TrueClass,FalseClass] sort_size
-  def self.run(object, dies:, subprograms:, show_size:, sort_size:)
+  # @param [TrueClass,FalseClass] flat
+  def self.run(object, dies:, subprograms:, show_size:, sort_size:, flat:)
     begin
-      nodes = DebugInfoParser.parse(object)
+      nodes = DebugInfoParser.parse(object, flat: flat)
     rescue DebugInfoParser::CommandError => e
       abort "ERROR: #{e.message}"
     end
