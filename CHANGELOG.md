@@ -1,8 +1,11 @@
+## v0.1.2
+
+* Add `--merge` option
+
 ## v0.1.1
 
 * Add `--flat` option
 
 ## v0.1.0
 
-* Initial release
-  * Features: `--die`, `--subprogram`, `--show-size`, `--sort-size`
+* Add `--die`, `--subprogram`, `--show-size`, `--sort-size` options
