@@ -22,7 +22,7 @@ class Dwarftree::TreeVisualizer
   def visualize_node(node, depth: 0)
     size = node_code_size(node)
     print "#{'  ' * depth}#{node.type}"
-    puts "#{(" size=#{human_size(size)}" if @show_size && size)} #{node_attributes(node)}"
+    puts "#{(" size=#{human_size(size)}" if @show_size && size > 0)} #{node_attributes(node)}"
 
     sort(node.children).each do |child|
       visualize_node(child, depth: depth + 1)
@@ -30,23 +30,21 @@ class Dwarftree::TreeVisualizer
   end
 
   def node_attributes(node)
-    attrs = node.class.attributes.map do |attr|
-      if value = node.public_send(attr)
-        "#{attr}: #{value}"
-      end
+    attrs = node.attributes.map do |attr, value|
+      "#{attr}: #{value}"
     end
-    attrs.compact!
-
     return '' if attrs.empty?
     "(#{attrs.join(', ')})"
   end
 
   def node_code_size(node)
+    size = node.merged.map { |n| node_code_size(n) }.compact.sum
     if node.respond_to?(:ranges) && node.ranges
-      node.ranges.map { |range| range.end - range.begin }.sum
+      size += node.ranges.map { |range| range.end - range.begin }.sum
     elsif node.respond_to?(:high_pc) && node.high_pc
-      node.high_pc.to_i(16) # surprisingly low_pc is not needed to know code size
+      size += node.high_pc.to_i(16) # surprisingly low_pc is not needed to know code size
     end
+    size
   end
 
   def human_size(size)

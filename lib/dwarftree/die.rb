@@ -29,11 +29,22 @@ module Dwarftree::DIE
       self.attributes = members
 
       # Not in members to avoid a conflict with DIE attributes
-      attr_accessor :type, :level, :children
+      attr_accessor :type, :level, :children, :merged
 
       def initialize(**)
         super
         self.children = []
+        self.merged = []
+      end
+
+      def attributes
+        attrs = {}
+        self.class.attributes.each do |attr|
+          if value = send(attr)
+            attrs[attr] = value
+          end
+        end
+        attrs
       end
 
       if block

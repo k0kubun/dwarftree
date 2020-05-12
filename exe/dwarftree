@@ -8,6 +8,7 @@ subprograms = Set.new
 dies = Set.new
 show_size = false
 sort_size = false
+merge = false
 flat = false
 
 objects = OptionParser.new do |o|
@@ -25,11 +26,23 @@ objects = OptionParser.new do |o|
     show_size = true
     sort_size = true
   end
+  o.on('--merge', 'Merge sibling DIEs with the same attributes') do
+    show_size = true
+    merge = true
+  end
   o.on('--flat', 'Skip constructing a tree') do
     flat = true
   end
 end.parse!(ARGV)
 
 objects.each do |object|
-  Dwarftree.run(object, dies: dies, subprograms: subprograms, show_size: show_size, sort_size: sort_size, flat: flat)
+  Dwarftree.run(
+    object,
+    dies: dies,
+    subprograms: subprograms,
+    show_size: show_size,
+    sort_size: sort_size,
+    merge: merge,
+    flat: flat,
+  )
 end
