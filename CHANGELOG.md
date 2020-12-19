@@ -1,3 +1,7 @@
+## v0.1.4
+
+* Support newer DWARF for Ubuntu 20.04
+
 ## v0.1.3
 
 * Show `abstract_origin` in subprogram
