@@ -125,7 +125,7 @@ class Dwarftree::DebugInfoParser
 
   def resolve_references(die)
     if die.respond_to?(:ranges) && die[:ranges]
-      die.ranges = @offset_ranges.fetch(die[:ranges].to_i(16))
+      die.ranges = @offset_ranges[die[:ranges].to_i(16)]
     end
     if die.respond_to?(:abstract_origin) && die[:abstract_origin]
       offset = die[:abstract_origin].match(/\A<0x(?<offset>\h+)>\z/)[:offset]

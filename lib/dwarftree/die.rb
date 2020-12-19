@@ -31,8 +31,12 @@ module Dwarftree::DIE
       # Not in members to avoid a conflict with DIE attributes
       attr_accessor :type, :level, :children, :merged
 
-      def initialize(**)
+      def initialize(**kwargs)
+        begin
         super
+        rescue => e
+          binding.irb
+        end
         self.children = []
         self.merged = []
       end

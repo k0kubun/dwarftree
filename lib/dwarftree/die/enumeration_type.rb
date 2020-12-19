@@ -5,5 +5,6 @@ Dwarftree::DIE::EnumerationType = Dwarftree::DIE.new(
   :type,
   :decl_file,
   :decl_line,
+  :decl_column,
   :sibling,
 )

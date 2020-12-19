@@ -2,6 +2,7 @@ Dwarftree::DIE::Variable = Dwarftree::DIE.new(
   :name,
   :decl_file,
   :decl_line,
+  :decl_column,
   :type,
   :external,
   :declaration,
@@ -10,6 +11,7 @@ Dwarftree::DIE::Variable = Dwarftree::DIE.new(
   :artificial,
   :abstract_origin,
   :specification,
+  :GNU_locviews,
 ) do
   def abstract_origin
     self[:abstract_origin]&.name
